@@ -12,11 +12,13 @@ import { Product } from '@/types';
 import { UploadCloud, DollarSign, Package, PlusCircle, LogOut } from 'lucide-react';
 import ProductCard from '@/components/minimart/product-card';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useProducts } from '@/context/product-context';
 
 export default function AdminPage() {
   const { toast } = useToast();
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const { products, dispatch } = useProducts();
 
   useEffect(() => {
     const isAdmin = sessionStorage.getItem('isAdminAuthenticated') === 'true';
@@ -27,7 +29,6 @@ export default function AdminPage() {
     }
   }, [router]);
 
-  const [products, setProducts] = useState<Product[]>([]);
   const [newProduct, setNewProduct] = useState({
     name: '',
     price: '',
@@ -62,15 +63,15 @@ export default function AdminPage() {
       return;
     }
 
-    const createdProduct: Product = {
-      id: products.length + 1,
+    const createdProduct: Omit<Product, 'id'> = {
       name: newProduct.name,
       price: parseFloat(newProduct.price),
       imageUrl: newProduct.imageUrl,
       dataAiHint: newProduct.dataAiHint || newProduct.name.toLowerCase().split(' ').slice(0,2).join(' '),
     };
+    
+    dispatch({ type: 'ADD_PRODUCT', payload: createdProduct });
 
-    setProducts(prev => [...prev, createdProduct]);
 
     toast({
       title: 'Product Added!',

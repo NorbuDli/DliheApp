@@ -17,6 +17,7 @@ const CartContext = createContext<{
   dispatch: React.Dispatch<CartAction>;
 } | undefined>(undefined);
 
+
 function cartReducer(state: CartState, action: CartAction): CartState {
   switch (action.type) {
     case 'ADD_ITEM': {

@@ -3,6 +3,7 @@ import './globals.css';
 import { cn } from '@/lib/utils';
 import Header from '@/components/layout/header';
 import { CartProvider } from '@/context/cart-context';
+import { ProductProvider } from '@/context/product-context';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
@@ -23,11 +24,13 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=PT+Sans:wght@400;700&display=swap" rel="stylesheet" />
       </head>
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
-        <CartProvider>
-          <Header />
-          <main className="flex-grow">{children}</main>
-          <Toaster />
-        </CartProvider>
+        <ProductProvider>
+          <CartProvider>
+            <Header />
+            <main className="flex-grow">{children}</main>
+            <Toaster />
+          </CartProvider>
+        </ProductProvider>
       </body>
     </html>
   );
