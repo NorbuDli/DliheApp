@@ -1,11 +1,13 @@
+// @/components/layout/header.tsx
 "use client";
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/cart-context';
-import { Menu, School, ShoppingCart, UserCog } from 'lucide-react';
+import { Menu, ShoppingCart, UserCog } from 'lucide-react';
 
 export default function Header() {
   const { cart } = useCart();
@@ -18,12 +20,9 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center">
+      <div className="container flex h-24 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <School className="h-6 w-6 text-primary" />
-          <span className="font-bold font-headline sm:inline-block">
-            AppSched
-          </span>
+          <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_ck2k6qzk7000108jy52g18v9k/dlihe-logo.png" alt="DLIHE Logo" width={300} height={60} className="object-contain" />
         </Link>
         <nav className="hidden gap-6 md:flex">
           {navLinks.map((link) => (
@@ -62,8 +61,7 @@ export default function Header() {
             <SheetContent side="right">
               <div className="flex flex-col gap-4 py-6">
                 <Link href="/" className="mr-6 flex items-center space-x-2 mb-4">
-                  <School className="h-6 w-6 text-primary" />
-                  <span className="font-bold font-headline">AppSched</span>
+                  <span className="font-bold font-headline">DLIHE</span>
                 </Link>
                 {navLinks.map((link) => (
                   <Link

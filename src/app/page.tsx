@@ -9,7 +9,7 @@ export default function Home() {
       <div className="container mx-auto">
         <section className="text-center py-16">
           <h1 className="font-headline text-4xl md:text-6xl font-bold text-primary mb-4 animate-fade-in-down">
-            Welcome to AppSched
+            Welcome to DLIHE
           </h1>
           <p className="text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto">
             Your all-in-one solution for managing your daily needs. From stocking up on essentials to keeping track of your college attendance, we've got you covered.

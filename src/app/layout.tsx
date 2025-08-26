@@ -7,7 +7,7 @@ import { ProductProvider } from '@/context/product-context';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'AppSched',
+  title: 'DLIHE',
   description: 'Your one-stop app for minimart shopping and attendance tracking.',
 };
 
