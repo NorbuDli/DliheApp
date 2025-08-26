@@ -20,17 +20,38 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { Label } from '@/components/ui/label';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { Order } from '@/types';
+import { useRouter } from 'next/navigation';
 
 export default function CartPage() {
   const { cart, dispatch: cartDispatch } = useCart();
   const { dispatch: orderDispatch } = useOrders();
   const { toast } = useToast();
+  const router = useRouter();
+
   const [name, setName] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  useEffect(() => {
+    const storedUser = sessionStorage.getItem('minimartUser');
+    if (storedUser) {
+      const user = JSON.parse(storedUser);
+      setName(user.name);
+      setPhoneNumber(user.phone);
+    } else {
+      // Redirect to login if no user data
+      toast({
+        variant: 'destructive',
+        title: 'Not Logged In',
+        description: 'Please enter your details before proceeding to cart.',
+      });
+      router.push('/minimart');
+    }
+  }, [router, toast]);
+
 
   const totalPrice = cart.reduce(
     (total, item) => total + item.product.price * item.quantity,
@@ -75,10 +96,8 @@ export default function CartPage() {
       description: 'Your order has been successfully submitted.',
     });
 
-    // Clear cart and form, then close dialog
+    // Clear cart and close dialog
     cartDispatch({ type: 'CLEAR_CART' });
-    setName('');
-    setPhoneNumber('');
     setIsDialogOpen(false);
   }
 
@@ -157,15 +176,15 @@ export default function CartPage() {
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                    Proceed to Checkout
+                    Confirm Order
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="sm:max-w-[425px]">
                   <form onSubmit={handleCheckoutSubmit}>
                     <DialogHeader>
-                      <DialogTitle>Almost there!</DialogTitle>
+                      <DialogTitle>Confirm Your Order</DialogTitle>
                       <DialogDescription>
-                        Please provide your details to complete the order.
+                        Please confirm your details before submitting the order.
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -173,13 +192,13 @@ export default function CartPage() {
                         <Label htmlFor="name" className="text-right">
                           Name
                         </Label>
-                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" placeholder="Your full name" />
+                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" placeholder="Your full name" readOnly />
                       </div>
                       <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="phone" className="text-right">
                           Phone
                         </Label>
-                        <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="col-span-3" placeholder="Your phone number" />
+                        <Input id="phone" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} className="col-span-3" placeholder="Your phone number" readOnly />
                       </div>
                     </div>
                     <DialogFooter>
