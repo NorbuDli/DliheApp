@@ -1,4 +1,3 @@
-// @/components/layout/header.tsx
 "use client";
 
 import Link from 'next/link';
@@ -6,13 +5,14 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/cart-context';
-import { Menu, ShoppingCart, UserCog } from 'lucide-react';
+import { Home, Menu, ShoppingCart, UserCog } from 'lucide-react';
 
 export default function Header() {
   const { cart } = useCart();
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
 
   const navLinks = [
+    { href: '/main', label: 'Home' },
     { href: '/minimart', label: 'Minimart' },
     { href: '/attendance', label: 'Attendance' },
   ];
@@ -20,7 +20,7 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
-        <Link href="/" className="mr-6 flex items-center space-x-2">
+        <Link href="/main" className="mr-6 flex items-center space-x-2">
            <span className="font-bold font-headline hidden sm:inline-block">DLIHE</span>
         </Link>
         <nav className="hidden gap-6 md:flex">
@@ -59,7 +59,7 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="right">
               <div className="flex flex-col gap-4 py-6">
-                <Link href="/" className="mr-6 flex items-center space-x-2 mb-4">
+                <Link href="/main" className="mr-6 flex items-center space-x-2 mb-4">
                   <span className="font-bold font-headline">DLIHE</span>
                 </Link>
                 {navLinks.map((link) => (
