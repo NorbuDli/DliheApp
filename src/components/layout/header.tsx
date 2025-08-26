@@ -6,7 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { useCart } from '@/context/cart-context';
-import { Home, Menu, ShoppingCart, UserCog, User } from 'lucide-react';
+import { Home, Menu, ShoppingCart, User } from 'lucide-react';
 
 export default function Header() {
   const { cart } = useCart();
@@ -39,11 +39,6 @@ export default function Header() {
            <Button variant="ghost" size="icon" asChild>
             <Link href="/my-orders" aria-label="My Orders">
               <User className="h-5 w-5" />
-            </Link>
-          </Button>
-           <Button variant="ghost" size="icon" asChild>
-            <Link href="/minimart/admin" aria-label="Admin Dashboard">
-              <UserCog className="h-5 w-5" />
             </Link>
           </Button>
            <Button variant="ghost" size="icon" asChild>
@@ -82,12 +77,6 @@ export default function Header() {
                     className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
                   >
                     My Orders
-                  </Link>
-                 <Link
-                    href="/minimart/admin"
-                    className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
-                  >
-                    Admin
                   </Link>
               </div>
             </SheetContent>

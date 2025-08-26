@@ -7,8 +7,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { User, Shield, Phone, LogIn } from 'lucide-react';
-import Link from 'next/link';
+import { User, Phone } from 'lucide-react';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -50,63 +49,46 @@ export default function WelcomePage() {
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[calc(100vh-8rem)]">
-      <div className="max-w-4xl w-full text-center">
+      <div className="max-w-xl w-full text-center">
         <h1 className="font-headline text-4xl md:text-6xl font-bold text-primary mb-4 animate-fade-in-down">
             Welcome to DLIHE
         </h1>
         <p className="text-lg md:text-xl text-foreground/80 max-w-3xl mx-auto mb-12">
-            Your all-in-one solution for managing your daily needs. Please select your role to continue.
+            Your all-in-one solution for managing your daily needs. Please enter your details to continue.
         </p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="flex flex-col text-left">
-            <form onSubmit={handleUserLogin}>
-                <CardHeader>
-                <CardTitle className="font-headline text-2xl flex items-center gap-2"><User /> I am a Customer</CardTitle>
-                <CardDescription>Enter your details to access the app.</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 flex-grow">
-                <div className="space-y-2">
-                    <Label htmlFor="customer-name" className='flex items-center gap-2'><User size={16}/> Name</Label>
-                    <Input
-                    id="customer-name"
-                    placeholder="Your full name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                    />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="customer-phone" className='flex items-center gap-2'><Phone size={16}/> Phone Number</Label>
-                    <Input
-                    id="customer-phone"
-                    placeholder="Your phone number"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                    />
-                </div>
-                </CardContent>
-                <CardFooter>
-                <Button type="submit" className="w-full">Continue</Button>
-                </CardFooter>
-            </form>
-            </Card>
-
-            <Card className="flex flex-col text-left">
+        <Card className="flex flex-col text-left">
+        <form onSubmit={handleUserLogin}>
             <CardHeader>
-                <CardTitle className="font-headline text-2xl flex items-center gap-2"><Shield /> I am an Admin</CardTitle>
-                <CardDescription>Manage products and orders.</CardDescription>
+            <CardTitle className="font-headline text-2xl flex items-center gap-2"><User /> Customer Login</CardTitle>
+            <CardDescription>Enter your details to access the app.</CardDescription>
             </CardHeader>
-            <CardContent className="flex-grow flex items-center justify-center">
-                <p className="text-muted-foreground text-center">Click below to proceed to the administrative dashboard.</p>
+            <CardContent className="space-y-4 flex-grow">
+            <div className="space-y-2">
+                <Label htmlFor="customer-name" className='flex items-center gap-2'><User size={16}/> Name</Label>
+                <Input
+                id="customer-name"
+                placeholder="Your full name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="customer-phone" className='flex items-center gap-2'><Phone size={16}/> Phone Number</Label>
+                <Input
+                id="customer-phone"
+                placeholder="Your phone number"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+                />
+            </div>
             </CardContent>
             <CardFooter>
-                <Button asChild className="w-full" variant="secondary">
-                  <Link href="/minimart/admin">Admin Dashboard</Link>
-                </Button>
+            <Button type="submit" className="w-full">Continue</Button>
             </CardFooter>
-            </Card>
-        </div>
+        </form>
+        </Card>
        </div>
     </div>
   );
