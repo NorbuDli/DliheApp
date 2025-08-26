@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, CalendarClock, IndianRupee, Phone } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, CalendarClock, IndianRupee, Phone, Trash } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -38,7 +38,7 @@ export default function AdminPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const { products, dispatch } = useProducts();
-  const { orders } = useOrders();
+  const { orders, dispatch: orderDispatch } = useOrders();
 
   useEffect(() => {
     const isAdmin = sessionStorage.getItem('isAdminAuthenticated') === 'true';
@@ -118,6 +118,14 @@ export default function AdminPage() {
 
    const handleStockToggle = (productId: number) => {
     dispatch({ type: 'TOGGLE_STOCK_STATUS', payload: productId });
+  };
+  
+  const handleRemoveOrder = (orderId: string) => {
+    orderDispatch({ type: 'REMOVE_ORDER', payload: orderId });
+    toast({
+      title: 'Order Deleted',
+      description: 'The order has been successfully removed.',
+    });
   };
 
   const handleLogout = () => {
@@ -322,6 +330,29 @@ export default function AdminPage() {
                             </li>
                           ))}
                         </ul>
+                         <Separator className="my-4" />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash className="mr-2 h-4 w-4"/>
+                                Delete Order
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure you want to delete this order?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently delete the order record.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleRemoveOrder(order.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
