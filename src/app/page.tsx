@@ -7,7 +7,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { User, Phone } from 'lucide-react';
+import { User, Phone, Shield } from 'lucide-react';
+import Link from 'next/link';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -84,8 +85,11 @@ export default function WelcomePage() {
                 />
             </div>
             </CardContent>
-            <CardFooter>
-            <Button type="submit" className="w-full">Continue</Button>
+            <CardFooter className="flex flex-col gap-4">
+                <Button type="submit" className="w-full">Continue</Button>
+                <Button variant="outline" className="w-full" asChild>
+                    <Link href="/admin/login"><Shield size={16} className="mr-2"/> Admin Login</Link>
+                </Button>
             </CardFooter>
         </form>
         </Card>

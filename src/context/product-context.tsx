@@ -9,7 +9,10 @@ type ProductState = {
 };
 
 type ProductAction =
-  | { type: 'SET_PRODUCTS'; payload: Product[] };
+  | { type: 'SET_PRODUCTS'; payload: Product[] }
+  | { type: 'ADD_PRODUCT'; payload: Omit<Product, 'id' | 'inStock'> }
+  | { type: 'REMOVE_PRODUCT'; payload: number }
+  | { type: 'TOGGLE_STOCK_STATUS'; payload: number };
 
 const ProductContext = createContext<{
   state: ProductState;
@@ -17,16 +20,50 @@ const ProductContext = createContext<{
 } | undefined>(undefined);
 
 function productReducer(state: ProductState, action: ProductAction): ProductState {
+  let newState: ProductState;
   switch (action.type) {
     case 'SET_PRODUCTS':
       return { ...state, products: action.payload };
+    case 'ADD_PRODUCT': {
+        const newProduct: Product = {
+            id: new Date().getTime(), // simple id generation
+            ...action.payload,
+            inStock: true
+        };
+        newState = {
+            ...state,
+            products: [...state.products, newProduct]
+        };
+        break;
+    }
+    case 'REMOVE_PRODUCT': {
+        newState = {
+            ...state,
+            products: state.products.filter(p => p.id !== action.payload)
+        };
+        break;
+    }
+    case 'TOGGLE_STOCK_STATUS': {
+        newState = {
+            ...state,
+            products: state.products.map(p => 
+                p.id === action.payload ? { ...p, inStock: !p.inStock } : p
+            )
+        };
+        break;
+    }
     default:
       return state;
   }
+  // Persist state to localStorage
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('products', JSON.stringify(newState.products));
+  }
+  return newState;
 }
 
 export function ProductProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(productReducer, { products: initialProducts });
+  const [state, dispatch] = useReducer(productReducer, { products: [] });
 
   useEffect(() => {
     try {
@@ -34,7 +71,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       if (storedProducts) {
         dispatch({ type: 'SET_PRODUCTS', payload: JSON.parse(storedProducts) });
       } else {
-        // If nothing in local storage, set initial products
+        dispatch({ type: 'SET_PRODUCTS', payload: initialProducts });
         localStorage.setItem('products', JSON.stringify(initialProducts));
       }
     } catch (error) {
@@ -43,7 +80,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <ProductContext.Provider value={{ state, dispatch }}>
+    <ProductContext.Provider value={{ state: state, dispatch }}>
       {children}
     </ProductContext.Provider>
   );
