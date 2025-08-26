@@ -15,8 +15,7 @@ export interface CartItem {
 export interface Order {
   id: string;
   customerName: string;
-  department: string;
-  semester: string;
+  phoneNumber: string;
   items: CartItem[];
   totalPrice: number;
   timestamp: string;

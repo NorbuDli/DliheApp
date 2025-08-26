@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, BookUser, CalendarClock, IndianRupee } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, CalendarClock, IndianRupee, Phone } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -308,10 +308,9 @@ export default function AdminPage() {
                     </AccordionTrigger>
                     <AccordionContent>
                       <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                           <div className='flex items-center gap-2'><User size={16} className='text-muted-foreground'/><span className="font-semibold">{order.customerName}</span></div>
-                          <div className='flex items-center gap-2'><BookUser size={16} className='text-muted-foreground'/><span className="font-semibold">{order.department}</span></div>
-                          <div className='flex items-center gap-2'><CalendarClock size={16} className='text-muted-foreground'/><span className="font-semibold">{order.semester} Semester</span></div>
+                          <div className='flex items-center gap-2'><Phone size={16} className='text-muted-foreground'/><span className="font-semibold">{order.phoneNumber}</span></div>
                           <div className='flex items-center gap-2'><IndianRupee size={16} className='text-muted-foreground'/><span className="font-semibold text-primary">Total: {order.totalPrice.toFixed(2)}</span></div>
                         </div>
                         <Separator className="my-4" />
