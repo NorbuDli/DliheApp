@@ -4,6 +4,7 @@ export interface Product {
   price: number;
   imageUrl: string;
   dataAiHint: string;
+  inStock: boolean;
 }
 
 export interface CartItem {

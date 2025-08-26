@@ -9,8 +9,9 @@ type ProductState = {
 };
 
 type ProductAction =
-  | { type: 'ADD_PRODUCT'; payload: Omit<Product, 'id'> }
+  | { type: 'ADD_PRODUCT'; payload: Omit<Product, 'id' | 'inStock'> }
   | { type: 'REMOVE_PRODUCT'; payload: number }
+  | { type: 'TOGGLE_STOCK_STATUS'; payload: number }
   | { type: 'SET_PRODUCTS'; payload: Product[] };
 
 const ProductContext = createContext<{
@@ -25,6 +26,7 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
       const newProduct: Product = {
         ...action.payload,
         id: state.products.length > 0 ? Math.max(...state.products.map(p => p.id)) + 1 : 1,
+        inStock: true,
       };
       newState = {
         ...state,
@@ -39,6 +41,16 @@ function productReducer(state: ProductState, action: ProductAction): ProductStat
       newState = {
         ...state,
         products: state.products.filter(p => p.id !== action.payload),
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('products', JSON.stringify(newState.products));
+      }
+      return newState;
+    }
+    case 'TOGGLE_STOCK_STATUS': {
+      newState = {
+        ...state,
+        products: state.products.map(p => p.id === action.payload ? { ...p, inStock: !p.inStock } : p),
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('products', JSON.stringify(newState.products));

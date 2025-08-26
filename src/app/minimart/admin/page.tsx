@@ -23,6 +23,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Switch } from '@/components/ui/switch';
 
 
 export default function AdminPage() {
@@ -74,7 +75,7 @@ export default function AdminPage() {
       return;
     }
 
-    const createdProduct: Omit<Product, 'id'> = {
+    const createdProduct: Omit<Product, 'id' | 'inStock'> = {
       name: newProduct.name,
       price: parseFloat(newProduct.price),
       imageUrl: newProduct.imageUrl,
@@ -105,6 +106,10 @@ export default function AdminPage() {
       title: 'Product Removed',
       description: 'The product has been removed from the store.',
     });
+  };
+
+   const handleStockToggle = (productId: number) => {
+    dispatch({ type: 'TOGGLE_STOCK_STATUS', payload: productId });
   };
 
   const handleLogout = () => {
@@ -226,7 +231,15 @@ export default function AdminPage() {
                           ${product.price.toFixed(2)}
                         </p>
                        </CardContent>
-                       <CardFooter className="p-2">
+                       <CardFooter className="p-2 flex-col gap-2">
+                         <div className="flex items-center space-x-2 w-full justify-center">
+                            <Switch 
+                              id={`stock-switch-${product.id}`} 
+                              checked={product.inStock}
+                              onCheckedChange={() => handleStockToggle(product.id)}
+                            />
+                            <Label htmlFor={`stock-switch-${product.id}`}>{product.inStock ? 'In Stock' : 'Out of Stock'}</Label>
+                          </div>
                          <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" className="w-full">
