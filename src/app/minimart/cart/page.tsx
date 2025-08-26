@@ -80,7 +80,7 @@ export default function CartPage() {
       return;
     }
 
-    const newOrder: Order = {
+    const newOrder: Omit<Order, 'status'> = {
       id: new Date().toISOString(),
       customerName: name,
       phoneNumber,

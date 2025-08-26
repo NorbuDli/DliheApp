@@ -8,7 +8,7 @@ import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingBag, Package, CalendarClock, IndianRupee, Trash2 } from 'lucide-react';
+import { ShoppingBag, Package, CalendarClock, IndianRupee, Trash2, Ban } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
 
 
 export default function MyOrdersPage() {
@@ -50,12 +51,12 @@ export default function MyOrdersPage() {
       const filteredOrders = orders.filter(
         (order) => order.customerName === currentUser.name && order.phoneNumber === currentUser.phone
       );
-      setUserOrders(filteredOrders);
+      setUserOrders(filteredOrders.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
     }
   }, [currentUser, orders]);
 
   const handleCancelOrder = (orderId: string) => {
-    orderDispatch({ type: 'REMOVE_ORDER', payload: orderId });
+    orderDispatch({ type: 'CANCEL_ORDER', payload: orderId });
     toast({
       title: 'Order Cancelled',
       description: 'Your order has been successfully cancelled.',
@@ -72,15 +73,18 @@ export default function MyOrdersPage() {
       {userOrders.length > 0 ? (
         <div className="space-y-6">
           {userOrders.map((order) => (
-            <Card key={order.id} className="overflow-hidden">
+            <Card key={order.id} className={`overflow-hidden ${order.status === 'cancelled' ? 'bg-muted/50' : ''}`}>
               <CardHeader>
                  <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle>Order ID: {order.id.substring(0, 8)}...</CardTitle>
+                    <CardTitle className='flex items-center gap-4'>
+                      <span>Order ID: {order.id.substring(0, 8)}...</span>
+                      {order.status === 'cancelled' && <Badge variant="destructive">Cancelled</Badge>}
+                    </CardTitle>
                     <CardDescription className='flex items-center gap-2 pt-2'><CalendarClock size={16}/>{order.timestamp}</CardDescription>
                   </div>
                   <div className='text-right'>
-                     <p className='text-xl font-bold text-primary flex items-center gap-2 justify-end'><IndianRupee size={20}/> {order.totalPrice.toFixed(2)}</p>
+                     <p className={`text-xl font-bold flex items-center gap-2 justify-end ${order.status === 'cancelled' ? 'text-muted-foreground' : 'text-primary'}`}><IndianRupee size={20}/> {order.totalPrice.toFixed(2)}</p>
                      <p className="text-sm text-muted-foreground">Total Amount</p>
                   </div>
                 </div>
@@ -100,30 +104,32 @@ export default function MyOrdersPage() {
                   ))}
                 </ul>
               </CardContent>
-              <CardFooter className="bg-muted/50 p-4">
-                 <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="destructive">
-                        <Trash2 className="mr-2 h-4 w-4"/>
-                        Cancel Order
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure you want to cancel this order?</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          This action cannot be undone. This will permanently remove your order.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Keep Order</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleCancelOrder(order.id)}>
-                          Yes, Cancel
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-              </CardFooter>
+               {order.status === 'active' && (
+                <CardFooter className="bg-muted/50 p-4">
+                  <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive">
+                          <Ban className="mr-2 h-4 w-4"/>
+                          Cancel Order
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure you want to cancel this order?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will mark the order as cancelled. You cannot undo this action.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Keep Order</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleCancelOrder(order.id)}>
+                            Yes, Cancel
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                </CardFooter>
+               )}
             </Card>
           ))}
         </div>
@@ -140,5 +146,3 @@ export default function MyOrdersPage() {
     </div>
   );
 }
-
-    

@@ -8,9 +8,10 @@ type OrderState = {
 };
 
 type OrderAction =
-  | { type: 'ADD_ORDER'; payload: Order }
+  | { type: 'ADD_ORDER'; payload: Omit<Order, 'status'> }
   | { type: 'SET_ORDERS'; payload: Order[] }
-  | { type: 'REMOVE_ORDER', payload: string };
+  | { type: 'REMOVE_ORDER'; payload: string }
+  | { type: 'CANCEL_ORDER'; payload: string };
 
 const OrderContext = createContext<{
   state: OrderState;
@@ -21,9 +22,13 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
   let newState: OrderState;
   switch (action.type) {
     case 'ADD_ORDER':
+      const newOrder: Order = {
+        ...action.payload,
+        status: 'active'
+      }
       newState = {
         ...state,
-        orders: [action.payload, ...state.orders],
+        orders: [newOrder, ...state.orders],
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('orders', JSON.stringify(newState.orders));
@@ -35,6 +40,17 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
       newState = {
         ...state,
         orders: state.orders.filter(order => order.id !== action.payload),
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('orders', JSON.stringify(newState.orders));
+      }
+      return newState;
+    case 'CANCEL_ORDER':
+      newState = {
+        ...state,
+        orders: state.orders.map(order => 
+          order.id === action.payload ? { ...order, status: 'cancelled' } : order
+        ),
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('orders', JSON.stringify(newState.orders));

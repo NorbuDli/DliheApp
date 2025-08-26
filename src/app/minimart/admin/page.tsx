@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, CalendarClock, IndianRupee, Phone, Trash } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, Phone, Trash, Ban } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -32,6 +32,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { Badge } from '@/components/ui/badge';
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -148,6 +149,9 @@ export default function AdminPage() {
       </div>
     );
   }
+
+  const sortedOrders = [...orders].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -303,13 +307,18 @@ export default function AdminPage() {
             <CardDescription>View and manage incoming customer orders.</CardDescription>
           </CardHeader>
           <CardContent>
-            {orders.length > 0 ? (
+            {sortedOrders.length > 0 ? (
               <Accordion type="single" collapsible className="w-full">
-                {orders.map((order) => (
-                  <AccordionItem value={order.id} key={order.id}>
+                {sortedOrders.map((order) => (
+                  <AccordionItem value={order.id} key={order.id} disabled={order.status === 'cancelled'}>
                     <AccordionTrigger>
-                      <div className="flex justify-between w-full pr-4">
+                      <div className="flex justify-between items-center w-full pr-4">
                         <span className='font-semibold'>{order.customerName}</span>
+                         {order.status === 'cancelled' ? (
+                          <Badge variant="destructive" className='flex items-center gap-1'><Ban size={12}/>Cancelled</Badge>
+                        ) : (
+                          <Badge variant="secondary">Active</Badge>
+                        )}
                         <span className='text-muted-foreground'>{order.timestamp}</span>
                         <span className='font-bold text-primary'>Rupees {order.totalPrice.toFixed(2)}</span>
                       </div>
@@ -319,7 +328,6 @@ export default function AdminPage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
                           <div className='flex items-center gap-2'><User size={16} className='text-muted-foreground'/><span className="font-semibold">{order.customerName}</span></div>
                           <div className='flex items-center gap-2'><Phone size={16} className='text-muted-foreground'/><span className="font-semibold">{order.phoneNumber}</span></div>
-                          <div className='flex items-center gap-2'><IndianRupee size={16} className='text-muted-foreground'/><span className="font-semibold text-primary">Total: {order.totalPrice.toFixed(2)}</span></div>
                         </div>
                         <Separator className="my-4" />
                         <h4 className="font-semibold mb-2 flex items-center gap-2"><ShoppingBag size={18}/>Ordered Items</h4>
@@ -335,14 +343,14 @@ export default function AdminPage() {
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" size="sm">
                                 <Trash className="mr-2 h-4 w-4"/>
-                                Delete Order
+                                Delete Order Record
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure you want to delete this order?</AlertDialogTitle>
+                                <AlertDialogTitle>Are you sure you want to delete this order record?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete the order record.
+                                  This action cannot be undone. This will permanently delete the order record from view.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
