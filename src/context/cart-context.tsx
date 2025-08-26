@@ -10,7 +10,8 @@ type CartState = {
 type CartAction =
   | { type: 'ADD_ITEM'; payload: Product }
   | { type: 'REMOVE_ITEM'; payload: number }
-  | { type: 'UPDATE_QUANTITY'; payload: { productId: number; quantity: number } };
+  | { type: 'UPDATE_QUANTITY'; payload: { productId: number; quantity: number } }
+  | { type: 'CLEAR_CART' };
 
 const CartContext = createContext<{
   state: CartState;
@@ -60,6 +61,9 @@ function cartReducer(state: CartState, action: CartAction): CartState {
             : item
         ),
       };
+    }
+    case 'CLEAR_CART': {
+      return { ...state, cart: [] };
     }
     default:
       return state;

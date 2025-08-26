@@ -8,9 +8,27 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/cart-context';
 import { MinusCircle, PlusCircle, ShoppingCart, Trash2 } from 'lucide-react';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog"
+import { Label } from '@/components/ui/label';
+import React, { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function CartPage() {
   const { cart, dispatch } = useCart();
+  const { toast } = useToast();
+  const [name, setName] = useState('');
+  const [department, setDepartment] = useState('');
+  const [semester, setSemester] = useState('');
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const totalPrice = cart.reduce(
     (total, item) => total + item.product.price * item.quantity,
@@ -27,6 +45,37 @@ export default function CartPage() {
   const handleRemoveItem = (productId: number) => {
     dispatch({ type: 'REMOVE_ITEM', payload: productId });
   };
+
+  const handleCheckoutSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if(!name || !department || !semester) {
+       toast({
+        variant: 'destructive',
+        title: 'Missing Information',
+        description: 'Please fill out all the fields.',
+      });
+      return;
+    }
+    console.log({
+      name,
+      department,
+      semester,
+      cart,
+      totalPrice
+    });
+
+    toast({
+      title: 'Order Placed!',
+      description: 'Your order has been successfully submitted.',
+    });
+
+    // Clear cart and form, then close dialog
+    dispatch({ type: 'CLEAR_CART' });
+    setName('');
+    setDepartment('');
+    setSemester('');
+    setIsDialogOpen(false);
+  }
 
   if (cart.length === 0) {
     return (
@@ -100,9 +149,51 @@ export default function CartPage() {
                 <span>Total</span>
                 <span>Rupees {totalPrice.toFixed(2)}</span>
               </div>
-              <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                Proceed to Checkout
-              </Button>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+                    Proceed to Checkout
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <form onSubmit={handleCheckoutSubmit}>
+                    <DialogHeader>
+                      <DialogTitle>Almost there!</DialogTitle>
+                      <DialogDescription>
+                        Please provide your details to complete the order.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="name" className="text-right">
+                          Name
+                        </Label>
+                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" placeholder="Your full name" />
+                      </div>
+                      <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="department" className="text-right">
+                          Department
+                        </Label>
+                        <Input id="department" value={department} onChange={(e) => setDepartment(e.target.value)} className="col-span-3" placeholder="e.g., Computer Science" />
+                      </div>
+                       <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="semester" className="text-right">
+                          Semester
+                        </Label>
+                        <Input id="semester" value={semester} onChange={(e) => setSemester(e.target.value)} className="col-span-3" placeholder="e.g., 5th" />
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <DialogClose asChild>
+                         <Button type="button" variant="secondary">
+                          Cancel
+                        </Button>
+                      </DialogClose>
+                      <Button type="submit">Submit Order</Button>
+                    </DialogFooter>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </CardContent>
           </Card>
         </div>
