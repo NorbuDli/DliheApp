@@ -11,3 +11,13 @@ export interface CartItem {
   product: Product;
   quantity: number;
 }
+
+export interface Order {
+  id: string;
+  customerName: string;
+  department: string;
+  semester: string;
+  items: CartItem[];
+  totalPrice: number;
+  timestamp: string;
+}

@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { useCart } from '@/context/cart-context';
+import { useOrders } from '@/context/order-context';
 import { MinusCircle, PlusCircle, ShoppingCart, Trash2 } from 'lucide-react';
 import {
   Dialog,
@@ -21,9 +22,11 @@ import {
 import { Label } from '@/components/ui/label';
 import React, { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { Order } from '@/types';
 
 export default function CartPage() {
-  const { cart, dispatch } = useCart();
+  const { cart, dispatch: cartDispatch } = useCart();
+  const { dispatch: orderDispatch } = useOrders();
   const { toast } = useToast();
   const [name, setName] = useState('');
   const [department, setDepartment] = useState('');
@@ -36,14 +39,14 @@ export default function CartPage() {
   );
 
   const handleQuantityChange = (productId: number, newQuantity: number) => {
-    dispatch({
+    cartDispatch({
       type: 'UPDATE_QUANTITY',
       payload: { productId, quantity: newQuantity },
     });
   };
 
   const handleRemoveItem = (productId: number) => {
-    dispatch({ type: 'REMOVE_ITEM', payload: productId });
+    cartDispatch({ type: 'REMOVE_ITEM', payload: productId });
   };
 
   const handleCheckoutSubmit = (e: React.FormEvent) => {
@@ -56,13 +59,18 @@ export default function CartPage() {
       });
       return;
     }
-    console.log({
-      name,
+
+    const newOrder: Order = {
+      id: new Date().toISOString(),
+      customerName: name,
       department,
       semester,
-      cart,
-      totalPrice
-    });
+      items: cart,
+      totalPrice,
+      timestamp: new Date().toLocaleString()
+    };
+    
+    orderDispatch({ type: 'ADD_ORDER', payload: newOrder });
 
     toast({
       title: 'Order Placed!',
@@ -70,7 +78,7 @@ export default function CartPage() {
     });
 
     // Clear cart and form, then close dialog
-    dispatch({ type: 'CLEAR_CART' });
+    cartDispatch({ type: 'CLEAR_CART' });
     setName('');
     setDepartment('');
     setSemester('');

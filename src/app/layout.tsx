@@ -5,6 +5,7 @@ import Header from '@/components/layout/header';
 import { CartProvider } from '@/context/cart-context';
 import { ProductProvider } from '@/context/product-context';
 import { Toaster } from '@/components/ui/toaster';
+import { OrderProvider } from '@/context/order-context';
 
 export const metadata: Metadata = {
   title: 'DLIHE',
@@ -26,9 +27,11 @@ export default function RootLayout({
       <body className={cn('font-body antialiased min-h-screen flex flex-col')}>
         <ProductProvider>
           <CartProvider>
-            <Header />
-            <main className="flex-grow">{children}</main>
-            <Toaster />
+            <OrderProvider>
+              <Header />
+              <main className="flex-grow">{children}</main>
+              <Toaster />
+            </OrderProvider>
           </CartProvider>
         </ProductProvider>
       </body>
