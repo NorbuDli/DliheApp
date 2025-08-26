@@ -37,7 +37,7 @@ import { Badge } from '@/components/ui/badge';
 export default function AdminPage() {
   const { toast } = useToast();
   const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const { products, dispatch } = useProducts();
   const { orders, dispatch: orderDispatch } = useOrders();
 
@@ -143,7 +143,7 @@ export default function AdminPage() {
     toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
   };
   
-  if (!isAuthenticated) {
+  if (isAuthenticated === null) {
     return (
        <div className="container mx-auto py-8 px-4">
         <div className="flex justify-between items-center mb-8">

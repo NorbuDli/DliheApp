@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -15,10 +15,8 @@ export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you'd verify this against a backend.
     if (username === 'minimart' && password === 'dlihe@2025') {
       sessionStorage.setItem('isAdminAuthenticated', 'true');
       toast({
