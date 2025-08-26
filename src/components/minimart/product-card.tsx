@@ -45,7 +45,7 @@ export default function ProductCard({ product }: ProductCardProps) {
       <CardContent className="p-4 flex-grow">
         <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
         <p className="text-xl font-semibold text-primary">
-          ₹{product.price.toFixed(2)}
+          Rupees {product.price.toFixed(2)}
         </p>
       </CardContent>
       <CardFooter className="p-4 pt-0">
