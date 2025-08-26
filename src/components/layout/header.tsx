@@ -2,7 +2,6 @@
 "use client";
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
@@ -22,7 +21,6 @@ export default function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_clw2o2bax000108l23k51e3hl/DLIHE-logo_clw3j63b5000208jt2r232h9x.png" alt="DLIHE Logo" width={40} height={40} className="object-contain" />
            <span className="font-bold font-headline hidden sm:inline-block">DLIHE</span>
         </Link>
         <nav className="hidden gap-6 md:flex">
@@ -62,7 +60,6 @@ export default function Header() {
             <SheetContent side="right">
               <div className="flex flex-col gap-4 py-6">
                 <Link href="/" className="mr-6 flex items-center space-x-2 mb-4">
-                  <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_clw2o2bax000108l23k51e3hl/DLIHE-logo_clw3j63b5000208jt2r232h9x.png" alt="DLIHE Logo" width={40} height={40} className="object-contain" />
                   <span className="font-bold font-headline">DLIHE</span>
                 </Link>
                 {navLinks.map((link) => (
