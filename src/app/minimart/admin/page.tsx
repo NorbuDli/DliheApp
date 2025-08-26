@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, DollarSign, Package, PlusCircle, LogOut, Trash2 } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, LogOut, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -164,11 +164,11 @@ export default function AdminPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="product-price" className="flex items-center gap-2"><DollarSign size={16} />Price</Label>
+                  <Label htmlFor="product-price" className="flex items-center gap-2">Price (₹)</Label>
                   <Input 
                     id="product-price" 
                     type="number" 
-                    placeholder="e.g., 1.50" 
+                    placeholder="e.g., 125" 
                     value={newProduct.price}
                     onChange={e => setNewProduct(p => ({ ...p, price: e.target.value }))}
                     step="0.01"
@@ -228,7 +228,7 @@ export default function AdminPage() {
                        <CardContent className="p-4 flex-grow">
                         <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
                         <p className="text-xl font-semibold text-primary">
-                          ${product.price.toFixed(2)}
+                          ₹{product.price.toFixed(2)}
                         </p>
                        </CardContent>
                        <CardFooter className="p-2 flex-col gap-2">

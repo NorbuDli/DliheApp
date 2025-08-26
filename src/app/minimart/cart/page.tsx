@@ -58,7 +58,7 @@ export default function CartPage() {
               />
               <div className="ml-4 flex-grow">
                 <h2 className="font-headline text-lg">{product.name}</h2>
-                <p className="text-sm text-muted-foreground">${product.price.toFixed(2)}</p>
+                <p className="text-sm text-muted-foreground">₹{product.price.toFixed(2)}</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button variant="ghost" size="icon" onClick={() => handleQuantityChange(product.id, quantity - 1)}>
@@ -89,7 +89,7 @@ export default function CartPage() {
             <CardContent className="space-y-4">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
@@ -98,7 +98,7 @@ export default function CartPage() {
               <Separator />
               <div className="flex justify-between font-bold text-lg">
                 <span>Total</span>
-                <span>${totalPrice.toFixed(2)}</span>
+                <span>₹{totalPrice.toFixed(2)}</span>
               </div>
               <Button size="lg" className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
                 Proceed to Checkout
