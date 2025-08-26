@@ -20,13 +20,13 @@ const ExtractTimetableDataInputSchema = z.object({
 });
 export type ExtractTimetableDataInput = z.infer<typeof ExtractTimetableDataInputSchema>;
 
+const SubjectSchema = z.object({
+  subjectName: z.string().describe('The name of the subject.'),
+  classesPerWeek: z.number().describe('The number of classes per week for the subject.'),
+});
+
 const ExtractTimetableDataOutputSchema = z.object({
-  classTimings: z
-    .string()
-    .describe('The timings of the classes in the timetable.'),
-  classDurations: z
-    .string()
-    .describe('The durations of the classes in the timetable.'),
+  subjects: z.array(SubjectSchema).describe('A list of subjects and their weekly class counts.'),
 });
 export type ExtractTimetableDataOutput = z.infer<typeof ExtractTimetableDataOutputSchema>;
 
@@ -40,13 +40,11 @@ const prompt = ai.definePrompt({
   output: {schema: ExtractTimetableDataOutputSchema},
   prompt: `You are an expert at extracting timetable data from images.
 
-You will be provided with an image of a timetable. You will extract the class timings and durations from the image, and return them in a structured format.
+You will be provided with an image of a timetable. You will extract the subjects and the number of classes per week for each subject.
 
 Here is the timetable image:
 {{media url=photoDataUri}}
-
-Timings: {{classTimings}}
-Durations: {{classDurations}}`,
+`,
 });
 
 const extractTimetableDataFlow = ai.defineFlow(

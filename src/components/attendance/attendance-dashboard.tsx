@@ -12,6 +12,12 @@ import { projectAttendance, ProjectAttendanceOutput } from '@/ai/flows/project-a
 import { Loader2, UploadCloud, FileText, BarChart2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Separator } from '../ui/separator';
 
+type SubjectAttendance = {
+  subjectName: string;
+  classesPerWeek: number;
+  classesMissed: string;
+};
+
 export default function AttendanceDashboard() {
   const { toast } = useToast();
   
@@ -19,21 +25,23 @@ export default function AttendanceDashboard() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [isExtracting, setIsExtracting] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractTimetableDataOutput | null>(null);
-  
+  const [subjectAttendance, setSubjectAttendance] = useState<SubjectAttendance[]>([]);
+
   // Attendance state
-  const [daysAbsent, setDaysAbsent] = useState('');
-  const [daysConducted, setDaysConducted] = useState('');
-  const [totalDays, setTotalDays] = useState('');
+  const [totalWorkingDays, setTotalWorkingDays] = useState('');
+  const [daysPassed, setDaysPassed] = useState('');
   
   // Projection state
   const [isProjecting, setIsProjecting] = useState(false);
   const [projection, setProjection] = useState<ProjectAttendanceOutput | null>(null);
-  const [currentPercentage, setCurrentPercentage] = useState<number | null>(null);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       setPhotoFile(file);
+      setExtractedData(null);
+      setSubjectAttendance([]);
+      setProjection(null);
     }
   };
 
@@ -45,6 +53,7 @@ export default function AttendanceDashboard() {
 
     setIsExtracting(true);
     setExtractedData(null);
+    setProjection(null);
 
     const reader = new FileReader();
     reader.readAsDataURL(photoFile);
@@ -53,6 +62,7 @@ export default function AttendanceDashboard() {
       try {
         const result = await extractTimetableData({ photoDataUri });
         setExtractedData(result);
+        setSubjectAttendance(result.subjects.map(s => ({ ...s, classesMissed: '' })));
         toast({ title: "Extraction Successful", description: "Timetable data has been extracted." });
       } catch (error) {
         console.error(error);
@@ -63,35 +73,39 @@ export default function AttendanceDashboard() {
     };
   };
 
-  const handleProject = async () => {
-    const absent = parseInt(daysAbsent);
-    const conducted = parseInt(daysConducted);
-    const total = parseInt(totalDays);
+  const handleSubjectMissedChange = (subjectName: string, value: string) => {
+    setSubjectAttendance(prev => 
+      prev.map(s => s.subjectName === subjectName ? { ...s, classesMissed: value } : s)
+    );
+  };
 
-    if (isNaN(absent) || isNaN(conducted) || isNaN(total) || absent < 0 || conducted <= 0 || total <= 0) {
-      toast({ variant: "destructive", title: "Invalid Input", description: "Please enter valid, positive numbers for all fields." });
+  const handleProject = async () => {
+    const totalDays = parseInt(totalWorkingDays);
+    const passedDays = parseInt(daysPassed);
+
+    if (isNaN(totalDays) || isNaN(passedDays) || totalDays <= 0 || passedDays < 0) {
+      toast({ variant: "destructive", title: "Invalid Input", description: "Please enter valid numbers for total and passed days." });
       return;
     }
-    if (absent > conducted) {
-      toast({ variant: "destructive", title: "Invalid Input", description: "Classes missed cannot be more than classes conducted." });
+
+    if (passedDays > totalDays) {
+      toast({ variant: "destructive", title: "Invalid Input", description: "Days passed cannot be more than total working days." });
       return;
     }
-    if (conducted > total) {
-      toast({ variant: "destructive", title: "Invalid Input", description: "Classes conducted cannot be more than total classes." });
-      return;
-    }
+
+    const subjectsForProjection = subjectAttendance.map(s => ({
+      ...s,
+      classesMissed: parseInt(s.classesMissed) || 0,
+    }));
 
     setIsProjecting(true);
     setProjection(null);
     
-    const currentAtt = ((conducted - absent) / conducted) * 100;
-    setCurrentPercentage(currentAtt);
-
     try {
       const result = await projectAttendance({
-        currentAttendancePercentage: currentAtt,
-        daysAbsent: absent,
-        totalPossibleDays: total
+        subjects: subjectsForProjection,
+        totalWorkingDays: totalDays,
+        daysPassed: passedDays
       });
       setProjection(result);
       toast({ title: "Projection Complete", description: "Your attendance has been projected." });
@@ -108,7 +122,7 @@ export default function AttendanceDashboard() {
       <Card>
         <CardHeader>
           <CardTitle className="font-headline flex items-center gap-2"><UploadCloud className="text-primary"/> Step 1: Upload Timetable</CardTitle>
-          <CardDescription>Upload an image of your class schedule to extract key data automatically.</CardDescription>
+          <CardDescription>Upload an image of your class schedule to automatically extract your subjects.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Label htmlFor="timetable-upload" className="block text-sm font-medium text-foreground/80 mb-2">Timetable Image</Label>
@@ -119,74 +133,93 @@ export default function AttendanceDashboard() {
             Extract Timetable Data
           </Button>
         </CardContent>
-        {extractedData && (
-          <CardContent>
-             <Separator className="my-4" />
-             <h3 className="font-semibold mb-2">Extracted Information:</h3>
-             <p className="text-sm"><strong>Class Timings:</strong> {extractedData.classTimings}</p>
-             <p className="text-sm"><strong>Class Durations:</strong> {extractedData.classDurations}</p>
-          </CardContent>
-        )}
       </Card>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="font-headline flex items-center gap-2"><BarChart2 className="text-accent" /> Step 2: Calculate & Project Attendance</CardTitle>
-          <CardDescription>Enter your attendance details to calculate your current standing and project future possibilities.</CardDescription>
-        </CardHeader>
-        <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="days-absent">Classes Missed So Far</Label>
-            <Input id="days-absent" type="number" placeholder="e.g., 5" value={daysAbsent} onChange={(e) => setDaysAbsent(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="days-conducted">Classes Conducted So Far</Label>
-            <Input id="days-conducted" type="number" placeholder="e.g., 20" value={daysConducted} onChange={(e) => setDaysConducted(e.target.value)} />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="total-days">Total Classes in Semester</Label>
-            <Input id="total-days" type="number" placeholder="e.g., 80" value={totalDays} onChange={(e) => setTotalDays(e.target.value)} />
-          </div>
-        </CardContent>
-        <CardContent>
-          <Button onClick={handleProject} disabled={isProjecting} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-            {isProjecting && <Loader2 className="animate-spin mr-2" />}
-            Calculate & Project Attendance
-          </Button>
-        </CardContent>
-      </Card>
-      
-      {currentPercentage !== null && projection && (
+      {extractedData && (
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Attendance Results</CardTitle>
+            <CardTitle className="font-headline flex items-center gap-2"><BarChart2 className="text-accent" /> Step 2: Enter Attendance Details</CardTitle>
+            <CardDescription>Provide the semester duration and classes missed for each subject.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div>
-              <div className="flex justify-between mb-1">
-                <Label>Current Attendance</Label>
-                <span className="font-bold">{currentPercentage.toFixed(2)}%</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="total-days">Total Working Days in Semester</Label>
+                <Input id="total-days" type="number" placeholder="e.g., 90" value={totalWorkingDays} onChange={(e) => setTotalWorkingDays(e.target.value)} />
               </div>
-              <Progress value={currentPercentage} className="h-3" />
-            </div>
-            <div>
-              <div className="flex justify-between mb-1">
-                <Label>Projected Attendance (if you attend all remaining classes)</Label>
-                <span className="font-bold">{projection.attendanceIfAllAttended.toFixed(2)}%</span>
-              </div>
-              <Progress value={projection.attendanceIfAllAttended} className="h-3 bg-accent/20 [&>*]:bg-accent" />
-            </div>
-            <div className={`flex items-center gap-4 p-4 rounded-lg ${projection.canAchieve75Percent ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
-              {projection.canAchieve75Percent ? <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" /> : <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />}
-              <div>
-                <h4 className={`font-headline text-lg ${projection.canAchieve75Percent ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}>
-                  {projection.canAchieve75Percent ? "You're on track!" : "You need to be careful!"}
-                </h4>
-                <p className={`text-sm ${projection.canAchieve75Percent ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
-                  {projection.canAchieve75Percent ? "You can achieve above 75% attendance by attending all future classes." : "Even if you attend all remaining classes, you will not reach 75% attendance."}
-                </p>
+              <div className="space-y-2">
+                <Label htmlFor="days-passed">Working Days Passed So Far</Label>
+                <Input id="days-passed" type="number" placeholder="e.g., 30" value={daysPassed} onChange={(e) => setDaysPassed(e.target.value)} />
               </div>
             </div>
+            <Separator />
+            <div className="space-y-4">
+              <h4 className="font-semibold">Classes Missed Per Subject</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+                {subjectAttendance.map((subject) => (
+                  <div key={subject.subjectName} className="space-y-2">
+                    <Label htmlFor={`missed-${subject.subjectName}`}>{subject.subjectName} ({subject.classesPerWeek} classes/week)</Label>
+                    <Input 
+                      id={`missed-${subject.subjectName}`} 
+                      type="number" 
+                      placeholder="e.g., 5" 
+                      value={subject.classesMissed} 
+                      onChange={(e) => handleSubjectMissedChange(subject.subjectName, e.target.value)} 
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+          <CardContent>
+            <Button onClick={handleProject} disabled={isProjecting} className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
+              {isProjecting && <Loader2 className="animate-spin mr-2" />}
+              Calculate & Project Attendance
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+      
+      {projection && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="font-headline">Attendance Projection Results</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            {projection.projections.map((proj) => (
+              <div key={proj.subjectName} className="p-4 rounded-lg border">
+                <h4 className="font-headline text-xl mb-4">{proj.subjectName}</h4>
+                
+                <div className="space-y-4">
+                   <div>
+                    <div className="flex justify-between mb-1">
+                      <Label>Current Attendance</Label>
+                      <span className="font-bold">{proj.currentPercentage.toFixed(2)}%</span>
+                    </div>
+                    <Progress value={proj.currentPercentage} className="h-3" />
+                  </div>
+                  <div>
+                    <div className="flex justify-between mb-1">
+                      <Label>Projected Attendance (if you attend all remaining classes)</Label>
+                      <span className="font-bold">{proj.projectedPercentage.toFixed(2)}%</span>
+                    </div>
+                    <Progress value={proj.projectedPercentage} className="h-3 bg-accent/20 [&>*]:bg-accent" />
+                  </div>
+                </div>
+
+                <div className={`mt-4 flex items-center gap-4 p-4 rounded-lg ${proj.canAchieve75Percent ? 'bg-green-100 dark:bg-green-900/50' : 'bg-red-100 dark:bg-red-900/50'}`}>
+                  {proj.canAchieve75Percent ? <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" /> : <AlertCircle className="h-8 w-8 text-red-600 dark:text-red-400" />}
+                  <div>
+                    <h5 className={`font-semibold text-lg ${proj.canAchieve75Percent ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'}`}>
+                      {proj.canAchieve75Percent ? "You're on track!" : "You need to be careful!"}
+                    </h5>
+                    <p className={`text-sm ${proj.canAchieve75Percent ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'}`}>
+                      {proj.canAchieve75Percent ? "You can achieve above 75% attendance." : "Even if you attend all remaining classes, you will not reach 75% attendance."}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
           </CardContent>
         </Card>
       )}

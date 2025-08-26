@@ -1,6 +1,6 @@
 'use server';
 /**
- * @fileOverview Predicts whether a student can achieve a 75% attendance rate by attending all remaining classes.
+ * @fileOverview Predicts whether a student can achieve a 75% attendance rate by attending all remaining classes for each subject.
  *
  * - projectAttendance - A function that handles the attendance projection process.
  * - ProjectAttendanceInput - The input type for the projectAttendance function.
@@ -10,50 +10,35 @@
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
+const SubjectAttendanceInputSchema = z.object({
+  subjectName: z.string(),
+  classesPerWeek: z.number(),
+  classesMissed: z.number(),
+});
+
 const ProjectAttendanceInputSchema = z.object({
-  currentAttendancePercentage: z
-    .number()
-    .describe('The current attendance percentage of the student.'),
-  daysAbsent: z.number().describe('The number of days the student has been absent.'),
-  totalPossibleDays: z
-    .number()
-    .describe('The total number of possible attendance days in the semester.'),
+  subjects: z.array(SubjectAttendanceInputSchema),
+  totalWorkingDays: z.number().describe('Total number of working days in the semester.'),
+  daysPassed: z.number().describe('Number of working days passed so far.'),
 });
 export type ProjectAttendanceInput = z.infer<typeof ProjectAttendanceInputSchema>;
 
+const SubjectAttendanceProjectionSchema = z.object({
+  subjectName: z.string(),
+  canAchieve75Percent: z.boolean(),
+  projectedPercentage: z.number(),
+  currentPercentage: z.number(),
+});
+
 const ProjectAttendanceOutputSchema = z.object({
-  canAchieve75Percent: z
-    .boolean()
-    .describe(
-      'Whether the student can achieve a 75% attendance rate by attending all remaining classes.'
-    ),
-  attendanceIfAllAttended: z
-    .number()
-    .describe(
-      'The final attendance percentage if the student attends all remaining classes.'
-    ),
+  projections: z.array(SubjectAttendanceProjectionSchema),
 });
 export type ProjectAttendanceOutput = z.infer<typeof ProjectAttendanceOutputSchema>;
+
 
 export async function projectAttendance(input: ProjectAttendanceInput): Promise<ProjectAttendanceOutput> {
   return projectAttendanceFlow(input);
 }
-
-const prompt = ai.definePrompt({
-  name: 'projectAttendancePrompt',
-  input: {schema: ProjectAttendanceInputSchema},
-  output: {schema: ProjectAttendanceOutputSchema},
-  prompt: `You are an expert attendance calculator.
-
-You will receive the current attendance percentage, the number of days the student has been absent, and the total number of possible attendance days in the semester.
-
-Calculate whether the student can achieve a 75% attendance rate if they attend all remaining classes.
-
-currentAttendancePercentage: {{{currentAttendancePercentage}}}
-daysAbsent: {{{daysAbsent}}}
-totalPossibleDays: {{{totalPossibleDays}}}
-`,
-});
 
 const projectAttendanceFlow = ai.defineFlow(
   {
@@ -61,17 +46,44 @@ const projectAttendanceFlow = ai.defineFlow(
     inputSchema: ProjectAttendanceInputSchema,
     outputSchema: ProjectAttendanceOutputSchema,
   },
-  async input => {
-    const {currentAttendancePercentage, daysAbsent, totalPossibleDays} = input;
+  async (input) => {
+    const { subjects, totalWorkingDays, daysPassed } = input;
+    
+    // Assuming 5 working days in a week
+    const totalWeeks = totalWorkingDays / 5;
+    const weeksPassed = daysPassed / 5;
 
-    const remainingDays = totalPossibleDays - daysAbsent;
+    const projections = subjects.map(subject => {
+      const totalClasses = Math.floor(subject.classesPerWeek * totalWeeks);
+      const conductedClasses = Math.floor(subject.classesPerWeek * weeksPassed);
+      
+      if (conductedClasses === 0) {
+        // Not enough data to calculate
+        return {
+          subjectName: subject.subjectName,
+          canAchieve75Percent: (totalClasses - subject.classesMissed) / totalClasses * 100 >= 75,
+          projectedPercentage: (totalClasses - subject.classesMissed) / totalClasses * 100,
+          currentPercentage: 100,
+        };
+      }
 
-    const attendanceIfAllAttended = (remainingDays / totalPossibleDays) * 100;
-    const canAchieve75Percent = attendanceIfAllAttended >= 75;
+      const attendedClasses = conductedClasses - subject.classesMissed;
+      const currentPercentage = (attendedClasses / conductedClasses) * 100;
+      
+      const remainingClasses = totalClasses - conductedClasses;
+      const projectedAttendedClasses = attendedClasses + remainingClasses;
+      const projectedPercentage = (projectedAttendedClasses / totalClasses) * 100;
+      
+      const canAchieve75Percent = projectedPercentage >= 75;
 
-    return {
-      canAchieve75Percent: canAchieve75Percent,
-      attendanceIfAllAttended: attendanceIfAllAttended,
-    };
+      return {
+        subjectName: subject.subjectName,
+        canAchieve75Percent,
+        projectedPercentage: isNaN(projectedPercentage) ? 0 : projectedPercentage,
+        currentPercentage: isNaN(currentPercentage) ? 0 : currentPercentage,
+      };
+    });
+
+    return { projections };
   }
 );
