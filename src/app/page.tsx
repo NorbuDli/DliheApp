@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { User, Shield, Phone, LogIn } from 'lucide-react';
+import Link from 'next/link';
 
 export default function WelcomePage() {
   const router = useRouter();
@@ -94,14 +95,14 @@ export default function WelcomePage() {
             <Card className="flex flex-col text-left">
             <CardHeader>
                 <CardTitle className="font-headline text-2xl flex items-center gap-2"><Shield /> I am an Admin</CardTitle>
-                <CardDescription>Login to manage products and orders.</CardDescription>
+                <CardDescription>Manage products and orders.</CardDescription>
             </CardHeader>
             <CardContent className="flex-grow flex items-center justify-center">
                 <p className="text-muted-foreground text-center">Click below to proceed to the administrative dashboard.</p>
             </CardContent>
             <CardFooter>
-                <Button onClick={() => router.push('/minimart/admin')} className="w-full" variant="secondary">
-                Admin Dashboard
+                <Button asChild className="w-full" variant="secondary">
+                  <Link href="/minimart/admin">Admin Dashboard</Link>
                 </Button>
             </CardFooter>
             </Card>
