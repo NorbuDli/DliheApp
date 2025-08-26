@@ -20,9 +20,10 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-24 items-center">
+      <div className="container flex h-16 items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_ck2k6qzk7000108jy52g18v9k/dlihe-logo.png" alt="DLIHE Logo" width={300} height={60} className="object-contain" />
+          <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_ck2k6qzk7000108jy52g18v9k/dlihe-logo-2.png" alt="DLIHE Logo" width={40} height={40} className="object-contain" />
+           <span className="font-bold font-headline hidden sm:inline-block">DLIHE</span>
         </Link>
         <nav className="hidden gap-6 md:flex">
           {navLinks.map((link) => (
@@ -61,6 +62,7 @@ export default function Header() {
             <SheetContent side="right">
               <div className="flex flex-col gap-4 py-6">
                 <Link href="/" className="mr-6 flex items-center space-x-2 mb-4">
+                  <Image src="https://storage.googleapis.com/studiostack-prod-dev-hosting/project_ck2k6qzk7000108jy52g18v9k/dlihe-logo-2.png" alt="DLIHE Logo" width={40} height={40} className="object-contain" />
                   <span className="font-bold font-headline">DLIHE</span>
                 </Link>
                 {navLinks.map((link) => (
