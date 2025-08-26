@@ -164,7 +164,7 @@ export default function AdminPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="product-price" className="flex items-center gap-2">Price (₹)</Label>
+                  <Label htmlFor="product-price" className="flex items-center gap-2">Price (Rupees)</Label>
                   <Input 
                     id="product-price" 
                     type="number" 
