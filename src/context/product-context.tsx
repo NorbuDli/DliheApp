@@ -10,6 +10,7 @@ type ProductState = {
 
 type ProductAction =
   | { type: 'ADD_PRODUCT'; payload: Omit<Product, 'id'> }
+  | { type: 'REMOVE_PRODUCT'; payload: number }
   | { type: 'SET_PRODUCTS'; payload: Product[] };
 
 const ProductContext = createContext<{
@@ -18,15 +19,26 @@ const ProductContext = createContext<{
 } | undefined>(undefined);
 
 function productReducer(state: ProductState, action: ProductAction): ProductState {
+  let newState: ProductState;
   switch (action.type) {
     case 'ADD_PRODUCT': {
       const newProduct: Product = {
         ...action.payload,
         id: state.products.length > 0 ? Math.max(...state.products.map(p => p.id)) + 1 : 1,
       };
-      const newState = {
+      newState = {
         ...state,
         products: [...state.products, newProduct],
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('products', JSON.stringify(newState.products));
+      }
+      return newState;
+    }
+     case 'REMOVE_PRODUCT': {
+      newState = {
+        ...state,
+        products: state.products.filter(p => p.id !== action.payload),
       };
       if (typeof window !== 'undefined') {
         localStorage.setItem('products', JSON.stringify(newState.products));

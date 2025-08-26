@@ -9,10 +9,21 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, DollarSign, Package, PlusCircle, LogOut } from 'lucide-react';
-import ProductCard from '@/components/minimart/product-card';
+import { UploadCloud, DollarSign, Package, PlusCircle, LogOut, Trash2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
 
 export default function AdminPage() {
   const { toast } = useToast();
@@ -85,6 +96,14 @@ export default function AdminPage() {
       imageUrl: '',
       imageFile: null,
       dataAiHint: ''
+    });
+  };
+
+  const handleRemoveProduct = (productId: number) => {
+    dispatch({ type: 'REMOVE_PRODUCT', payload: productId });
+    toast({
+      title: 'Product Removed',
+      description: 'The product has been removed from the store.',
     });
   };
 
@@ -181,14 +200,57 @@ export default function AdminPage() {
         <div className="lg:col-span-2">
            <Card>
             <CardHeader>
-              <CardTitle>Live Product Preview</CardTitle>
-              <CardDescription>This is how your products will appear to customers.</CardDescription>
+              <CardTitle>Current Products</CardTitle>
+              <CardDescription>Manage products currently available in your store.</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {products.length > 0 ? (
                   products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <Card key={product.id} className="flex flex-col overflow-hidden">
+                       <CardHeader className="p-0">
+                          <div className="aspect-square relative">
+                              <Image
+                                src={product.imageUrl}
+                                alt={product.name}
+                                fill
+                                className="object-cover"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                data-ai-hint={product.dataAiHint}
+                              />
+                          </div>
+                       </CardHeader>
+                       <CardContent className="p-4 flex-grow">
+                        <CardTitle className="font-headline text-lg mb-2">{product.name}</CardTitle>
+                        <p className="text-xl font-semibold text-primary">
+                          ${product.price.toFixed(2)}
+                        </p>
+                       </CardContent>
+                       <CardFooter className="p-2">
+                         <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" className="w-full">
+                                <Trash2 className="mr-2" /> Remove
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This action cannot be undone. This will permanently remove the product
+                                  from your store.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleRemoveProduct(product.id)}>
+                                  Continue
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                       </CardFooter>
+                    </Card>
                   ))
                 ) : (
                   <div className="col-span-full text-center py-12">
