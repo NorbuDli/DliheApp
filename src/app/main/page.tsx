@@ -1,8 +1,9 @@
+
 "use client";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Calculator, LogOut, ShoppingCart, User } from "lucide-react";
+import { ArrowRight, Calculator, LogOut, ShoppingCart, User as UserIcon } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -60,11 +61,18 @@ export default function MainPage() {
               <p className="mb-6">
                 Browse our curated selection of products. Add items to your cart and get ready for a seamless shopping experience.
               </p>
-              <Button asChild className="w-full" variant="outline">
-                <Link href="/minimart">
-                  Start Shopping <ArrowRight className="ml-2" />
-                </Link>
-              </Button>
+               <div className="flex gap-4">
+                <Button asChild className="flex-1" variant="outline">
+                  <Link href="/minimart">
+                    Start Shopping <ArrowRight className="ml-2" />
+                  </Link>
+                </Button>
+                 <Button asChild className="flex-1" >
+                   <Link href="/my-orders">
+                    My Orders
+                   </Link>
+                 </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -94,3 +102,5 @@ export default function MainPage() {
     </div>
   );
 }
+
+    
