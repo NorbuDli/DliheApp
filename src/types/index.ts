@@ -19,5 +19,5 @@ export interface Order {
   items: CartItem[];
   totalPrice: number;
   timestamp: string;
-  status: 'active' | 'cancelled';
+  status: 'active' | 'cancelled' | 'done';
 }

@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, Phone, Trash, Ban } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, Phone, Trash, Ban, CheckCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -129,6 +129,14 @@ export default function AdminPage() {
     });
   };
 
+  const handleMarkAsDone = (orderId: string) => {
+    orderDispatch({ type: 'MARK_AS_DONE', payload: orderId });
+    toast({
+      title: 'Order Completed',
+      description: 'The order has been marked as done.',
+    });
+  };
+
   const handleLogout = () => {
     sessionStorage.removeItem('isAdminAuthenticated');
     router.push('/minimart/admin/login');
@@ -150,7 +158,9 @@ export default function AdminPage() {
     );
   }
 
-  const sortedOrders = [...orders].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const activeOrders = orders
+    .filter(order => order.status === 'active')
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
 
   return (
@@ -303,27 +313,20 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Customer Orders</CardTitle>
+            <CardTitle>Active Customer Orders</CardTitle>
             <CardDescription>View and manage incoming customer orders.</CardDescription>
           </CardHeader>
           <CardContent>
-            {sortedOrders.length > 0 ? (
+            {activeOrders.length > 0 ? (
               <Accordion type="single" collapsible className="w-full">
-                {sortedOrders.map((order) => (
+                {activeOrders.map((order) => (
                   <AccordionItem value={order.id} key={order.id}>
-                    <AccordionTrigger
-                      className={order.status === 'cancelled' ? 'text-muted-foreground' : ''}
-                      disabled={order.status === 'cancelled'}
-                    >
+                    <AccordionTrigger>
                       <div className="flex justify-between items-center w-full pr-4">
                         <span className='font-semibold'>{order.customerName}</span>
-                         {order.status === 'cancelled' ? (
-                          <Badge variant="destructive" className='flex items-center gap-1'><Ban size={12}/>Cancelled</Badge>
-                        ) : (
-                          <Badge variant="secondary">Active</Badge>
-                        )}
+                        <Badge variant="secondary">Active</Badge>
                         <span className='text-muted-foreground'>{order.timestamp}</span>
-                        <span className={`font-bold ${order.status === 'cancelled' ? '' : 'text-primary'}`}>Rupees {order.totalPrice.toFixed(2)}</span>
+                        <span className='font-bold text-primary'>Rupees {order.totalPrice.toFixed(2)}</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>
@@ -342,6 +345,11 @@ export default function AdminPage() {
                           ))}
                         </ul>
                          <Separator className="my-4" />
+                         <div className='flex gap-2'>
+                           <Button size="sm" className='bg-green-600 hover:bg-green-700' onClick={() => handleMarkAsDone(order.id)}>
+                              <CheckCircle className="mr-2 h-4 w-4"/>
+                              Mark as Done
+                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
                               <Button variant="destructive" size="sm">
@@ -364,6 +372,7 @@ export default function AdminPage() {
                               </AlertDialogFooter>
                             </AlertDialogContent>
                           </AlertDialog>
+                         </div>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
@@ -371,7 +380,7 @@ export default function AdminPage() {
               </Accordion>
             ) : (
               <div className="text-center py-12 text-muted-foreground">
-                <p>No orders have been placed yet.</p>
+                <p>No active orders.</p>
               </div>
             )}
           </CardContent>

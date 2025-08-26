@@ -8,7 +8,7 @@ import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingBag, Package, CalendarClock, IndianRupee, Ban } from 'lucide-react';
+import { ShoppingBag, Package, CalendarClock, IndianRupee, Ban, CheckCircle } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -75,7 +75,7 @@ export default function MyOrdersPage() {
       {userOrders.length > 0 ? (
         <div className="space-y-6">
           {userOrders.map((order) => (
-            <Card key={order.id} className={`overflow-hidden ${order.status === 'cancelled' ? 'bg-muted/50' : ''}`}>
+            <Card key={order.id} className={`overflow-hidden ${order.status !== 'active' ? 'bg-muted/50' : ''}`}>
               <CardHeader>
                  <div className="flex justify-between items-start">
                   <div>
@@ -83,6 +83,8 @@ export default function MyOrdersPage() {
                       <span>Order ID: {order.id.substring(0, 8)}...</span>
                       {order.status === 'cancelled' ? (
                           <Badge variant="destructive" className='flex items-center gap-1'><Ban size={12}/>Cancelled</Badge>
+                        ) : order.status === 'done' ? (
+                          <Badge variant="default" className='flex items-center gap-1 bg-green-600'><CheckCircle size={12}/>Completed</Badge>
                         ) : (
                           <Badge variant="secondary">Active</Badge>
                         )}
@@ -90,7 +92,7 @@ export default function MyOrdersPage() {
                     <CardDescription className='flex items-center gap-2 pt-2'><CalendarClock size={16}/>{order.timestamp}</CardDescription>
                   </div>
                   <div className='text-right'>
-                     <p className={`text-xl font-bold flex items-center gap-2 justify-end ${order.status === 'cancelled' ? 'text-muted-foreground' : 'text-primary'}`}><IndianRupee size={20}/> {order.totalPrice.toFixed(2)}</p>
+                     <p className={`text-xl font-bold flex items-center gap-2 justify-end ${order.status !== 'active' ? 'text-muted-foreground' : 'text-primary'}`}><IndianRupee size={20}/> {order.totalPrice.toFixed(2)}</p>
                      <p className="text-sm text-muted-foreground">Total Amount</p>
                   </div>
                 </div>

@@ -8,10 +8,11 @@ type OrderState = {
 };
 
 type OrderAction =
-  | { type: 'ADD_ORDER'; payload: Omit<Order, 'status'> }
+  | { type: 'ADD_ORDER'; payload: Omit<Order, 'status' | 'id'> }
   | { type: 'SET_ORDERS'; payload: Order[] }
   | { type: 'REMOVE_ORDER'; payload: string }
-  | { type: 'CANCEL_ORDER'; payload: string };
+  | { type: 'CANCEL_ORDER'; payload: string }
+  | { type: 'MARK_AS_DONE'; payload: string };
 
 const OrderContext = createContext<{
   state: OrderState;
@@ -24,6 +25,7 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
     case 'ADD_ORDER':
       const newOrder: Order = {
         ...action.payload,
+        id: new Date().toISOString(),
         status: 'active'
       }
       newState = {
@@ -50,6 +52,17 @@ function orderReducer(state: OrderState, action: OrderAction): OrderState {
         ...state,
         orders: state.orders.map(order => 
           order.id === action.payload ? { ...order, status: 'cancelled' } : order
+        ),
+      };
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('orders', JSON.stringify(newState.orders));
+      }
+      return newState;
+    case 'MARK_AS_DONE':
+      newState = {
+        ...state,
+        orders: state.orders.map(order =>
+          order.id === action.payload ? { ...order, status: 'done' } : order
         ),
       };
       if (typeof window !== 'undefined') {

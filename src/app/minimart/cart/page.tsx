@@ -80,8 +80,7 @@ export default function CartPage() {
       return;
     }
 
-    const newOrder: Omit<Order, 'status'> = {
-      id: new Date().toISOString(),
+    const newOrder: Omit<Order, 'status' | 'id'> = {
       customerName: name,
       phoneNumber,
       items: cart,
@@ -99,6 +98,7 @@ export default function CartPage() {
     // Clear cart and close dialog
     cartDispatch({ type: 'CLEAR_CART' });
     setIsDialogOpen(false);
+    router.push('/my-orders');
   }
 
   if (cart.length === 0) {
