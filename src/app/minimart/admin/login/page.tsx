@@ -15,13 +15,6 @@ export default function AdminLoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  // Redirect if already logged in
-  useEffect(() => {
-    if (sessionStorage.getItem('isAdminAuthenticated') === 'true') {
-      router.push('/minimart/admin');
-    }
-  }, [router]);
-
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
