@@ -100,8 +100,8 @@ export default function WelcomePage() {
                 <p className="text-muted-foreground text-center">Click below to proceed to the administrative dashboard.</p>
             </CardContent>
             <CardFooter>
-                <Button onClick={() => router.push('/minimart/admin/login')} className="w-full" variant="secondary">
-                Admin Login
+                <Button onClick={() => router.push('/minimart/admin')} className="w-full" variant="secondary">
+                Admin Dashboard
                 </Button>
             </CardFooter>
             </Card>

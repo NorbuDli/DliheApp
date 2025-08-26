@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, Package, PlusCircle, LogOut, Trash2, ShoppingBag, User, Phone, Trash, Ban, CheckCircle } from 'lucide-react';
+import { UploadCloud, Package, PlusCircle, Trash2, ShoppingBag, Phone, Trash, Ban, CheckCircle } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
 import {
@@ -36,19 +36,8 @@ import { Badge } from '@/components/ui/badge';
 
 export default function AdminPage() {
   const { toast } = useToast();
-  const router = useRouter();
-  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const { products, dispatch } = useProducts();
   const { orders, dispatch: orderDispatch } = useOrders();
-
-  useEffect(() => {
-    const isAdmin = sessionStorage.getItem('isAdminAuthenticated') === 'true';
-    if (!isAdmin) {
-      router.replace('/minimart/admin/login');
-    } else {
-      setIsAuthenticated(true);
-    }
-  }, [router]);
 
   const [newProduct, setNewProduct] = useState({
     name: '',
@@ -136,28 +125,7 @@ export default function AdminPage() {
       description: 'The order has been marked as done.',
     });
   };
-
-  const handleLogout = () => {
-    sessionStorage.removeItem('isAdminAuthenticated');
-    router.push('/minimart/admin/login');
-    toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
-  };
   
-  if (isAuthenticated === null) {
-    return (
-       <div className="container mx-auto py-8 px-4">
-        <div className="flex justify-between items-center mb-8">
-           <Skeleton className="h-10 w-2/5" />
-           <Skeleton className="h-10 w-24" />
-        </div>
-        <div className="space-y-8">
-          <Skeleton className="h-[500px] w-full" />
-          <Skeleton className="h-[300px] w-full" />
-        </div>
-      </div>
-    );
-  }
-
   const activeOrders = orders
     .filter(order => order.status === 'active')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
@@ -173,7 +141,6 @@ export default function AdminPage() {
         <h1 className="font-headline text-3xl md:text-4xl font-bold">
           Admin Dashboard
         </h1>
-        <Button variant="outline" onClick={handleLogout}><LogOut className="mr-2"/>Logout</Button>
       </div>
       <div className="space-y-12">
         <Card>

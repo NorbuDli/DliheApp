@@ -42,7 +42,7 @@ export default function Header() {
             </Link>
           </Button>
            <Button variant="ghost" size="icon" asChild>
-            <Link href="/minimart/admin/login" aria-label="Admin Login">
+            <Link href="/minimart/admin" aria-label="Admin Dashboard">
               <UserCog className="h-5 w-5" />
             </Link>
           </Button>
@@ -84,7 +84,7 @@ export default function Header() {
                     My Orders
                   </Link>
                  <Link
-                    href="/minimart/admin/login"
+                    href="/minimart/admin"
                     className="text-lg font-medium text-foreground/80 transition-colors hover:text-foreground"
                   >
                     Admin
@@ -97,5 +97,3 @@ export default function Header() {
     </header>
   );
 }
-
-    
