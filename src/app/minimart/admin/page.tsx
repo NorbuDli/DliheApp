@@ -310,8 +310,11 @@ export default function AdminPage() {
             {sortedOrders.length > 0 ? (
               <Accordion type="single" collapsible className="w-full">
                 {sortedOrders.map((order) => (
-                  <AccordionItem value={order.id} key={order.id} disabled={order.status === 'cancelled'}>
-                    <AccordionTrigger>
+                  <AccordionItem value={order.id} key={order.id}>
+                    <AccordionTrigger
+                      className={order.status === 'cancelled' ? 'text-muted-foreground' : ''}
+                      disabled={order.status === 'cancelled'}
+                    >
                       <div className="flex justify-between items-center w-full pr-4">
                         <span className='font-semibold'>{order.customerName}</span>
                          {order.status === 'cancelled' ? (
@@ -320,7 +323,7 @@ export default function AdminPage() {
                           <Badge variant="secondary">Active</Badge>
                         )}
                         <span className='text-muted-foreground'>{order.timestamp}</span>
-                        <span className='font-bold text-primary'>Rupees {order.totalPrice.toFixed(2)}</span>
+                        <span className={`font-bold ${order.status === 'cancelled' ? '' : 'text-primary'}`}>Rupees {order.totalPrice.toFixed(2)}</span>
                       </div>
                     </AccordionTrigger>
                     <AccordionContent>

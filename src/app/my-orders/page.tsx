@@ -8,7 +8,7 @@ import { Order } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { ShoppingBag, Package, CalendarClock, IndianRupee, Trash2, Ban } from 'lucide-react';
+import { ShoppingBag, Package, CalendarClock, IndianRupee, Ban } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +52,8 @@ export default function MyOrdersPage() {
         (order) => order.customerName === currentUser.name && order.phoneNumber === currentUser.phone
       );
       setUserOrders(filteredOrders.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()));
+    } else {
+      setUserOrders([]);
     }
   }, [currentUser, orders]);
 
@@ -79,7 +81,11 @@ export default function MyOrdersPage() {
                   <div>
                     <CardTitle className='flex items-center gap-4'>
                       <span>Order ID: {order.id.substring(0, 8)}...</span>
-                      {order.status === 'cancelled' && <Badge variant="destructive">Cancelled</Badge>}
+                      {order.status === 'cancelled' ? (
+                          <Badge variant="destructive" className='flex items-center gap-1'><Ban size={12}/>Cancelled</Badge>
+                        ) : (
+                          <Badge variant="secondary">Active</Badge>
+                        )}
                     </CardTitle>
                     <CardDescription className='flex items-center gap-2 pt-2'><CalendarClock size={16}/>{order.timestamp}</CardDescription>
                   </div>
