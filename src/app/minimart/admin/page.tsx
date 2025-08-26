@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -8,11 +9,23 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Product } from '@/types';
-import { UploadCloud, DollarSign, Package, PlusCircle } from 'lucide-react';
+import { UploadCloud, DollarSign, Package, PlusCircle, LogOut } from 'lucide-react';
 import ProductCard from '@/components/minimart/product-card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function AdminPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const isAdmin = sessionStorage.getItem('isAdminAuthenticated') === 'true';
+    if (!isAdmin) {
+      router.replace('/minimart/admin/login');
+    } else {
+      setIsAuthenticated(true);
+    }
+  }, [router]);
 
   const [products, setProducts] = useState<Product[]>([]);
   const [newProduct, setNewProduct] = useState({
@@ -74,11 +87,39 @@ export default function AdminPage() {
     });
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem('isAdminAuthenticated');
+    router.push('/minimart/admin/login');
+    toast({ title: 'Logged Out', description: 'You have been successfully logged out.' });
+  };
+  
+  if (!isAuthenticated) {
+    return (
+       <div className="container mx-auto py-8 px-4">
+        <div className="flex justify-between items-center mb-8">
+           <Skeleton className="h-10 w-2/5" />
+           <Skeleton className="h-10 w-24" />
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+             <Skeleton className="h-[500px] w-full" />
+          </div>
+          <div className="lg:col-span-2">
+            <Skeleton className="h-[500px] w-full" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="font-headline text-3xl md:text-4xl font-bold mb-8 text-center">
-        Admin - Manage Products
-      </h1>
+       <div className="flex justify-between items-center mb-8">
+        <h1 className="font-headline text-3xl md:text-4xl font-bold">
+          Admin - Manage Products
+        </h1>
+        <Button variant="outline" onClick={handleLogout}><LogOut className="mr-2"/>Logout</Button>
+      </div>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1">
           <Card>
