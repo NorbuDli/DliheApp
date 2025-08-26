@@ -26,7 +26,7 @@ export default function AdminLoginPage() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // In a real app, you'd verify this against a backend.
-    if (username === 'admin' && password === 'password') {
+    if (username === 'minimart' && password === 'dlihe@2025') {
       sessionStorage.setItem('isAdminAuthenticated', 'true');
       toast({
         title: 'Login Successful',
@@ -56,7 +56,7 @@ export default function AdminLoginPage() {
               <Input
                 id="username"
                 type="text"
-                placeholder="admin"
+                placeholder="minimart"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
