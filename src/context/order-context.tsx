@@ -22,56 +22,53 @@ const OrderContext = createContext<{
 function orderReducer(state: OrderState, action: OrderAction): OrderState {
   let newState: OrderState;
   switch (action.type) {
-    case 'ADD_ORDER':
+    case 'ADD_ORDER': {
       const newOrder: Order = {
         ...action.payload,
-        id: new Date().toISOString(),
+        id: new Date().toISOString() + Math.random().toString(36).substring(2, 9),
         status: 'active'
       }
       newState = {
         ...state,
         orders: [newOrder, ...state.orders],
       };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('orders', JSON.stringify(newState.orders));
-      }
-      return newState;
+      break;
+    }
     case 'SET_ORDERS':
       return { ...state, orders: action.payload };
-    case 'REMOVE_ORDER':
+    case 'REMOVE_ORDER': {
       newState = {
         ...state,
         orders: state.orders.filter(order => order.id !== action.payload),
       };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('orders', JSON.stringify(newState.orders));
-      }
-      return newState;
-    case 'CANCEL_ORDER':
+      break;
+    }
+    case 'CANCEL_ORDER': {
       newState = {
         ...state,
         orders: state.orders.map(order => 
           order.id === action.payload ? { ...order, status: 'cancelled' } : order
         ),
       };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('orders', JSON.stringify(newState.orders));
-      }
-      return newState;
-    case 'MARK_AS_DONE':
+      break;
+    }
+    case 'MARK_AS_DONE': {
       newState = {
         ...state,
         orders: state.orders.map(order =>
           order.id === action.payload ? { ...order, status: 'done' } : order
         ),
       };
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('orders', JSON.stringify(newState.orders));
-      }
-      return newState;
+      break;
+    }
     default:
       return state;
   }
+
+  if (typeof window !== 'undefined') {
+    localStorage.setItem('orders', JSON.stringify(newState.orders));
+  }
+  return newState;
 }
 
 export function OrderProvider({ children }: { children: ReactNode }) {

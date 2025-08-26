@@ -162,6 +162,10 @@ export default function AdminPage() {
     .filter(order => order.status === 'active')
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
 
+  const completedOrders = orders
+    .filter(order => order.status === 'done' || order.status === 'cancelled')
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -313,76 +317,133 @@ export default function AdminPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Active Customer Orders</CardTitle>
+            <CardTitle>Customer Orders</CardTitle>
             <CardDescription>View and manage incoming customer orders.</CardDescription>
           </CardHeader>
           <CardContent>
-            {activeOrders.length > 0 ? (
-              <Accordion type="single" collapsible className="w-full">
-                {activeOrders.map((order) => (
-                  <AccordionItem value={order.id} key={order.id}>
-                    <AccordionTrigger>
-                      <div className="flex justify-between items-center w-full pr-4">
-                        <span className='font-semibold'>{order.customerName}</span>
-                        <Badge variant="secondary">Active</Badge>
-                        <span className='text-muted-foreground'>{order.timestamp}</span>
-                        <span className='font-bold text-primary'>Rupees {order.totalPrice.toFixed(2)}</span>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent>
-                      <div className="p-4 bg-muted/50 rounded-lg">
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                          <div className='flex items-center gap-2'><User size={16} className='text-muted-foreground'/><span className="font-semibold">{order.customerName}</span></div>
-                          <div className='flex items-center gap-2'><Phone size={16} className='text-muted-foreground'/><span className="font-semibold">{order.phoneNumber}</span></div>
-                        </div>
-                        <Separator className="my-4" />
-                        <h4 className="font-semibold mb-2 flex items-center gap-2"><ShoppingBag size={18}/>Ordered Items</h4>
-                        <ul className="space-y-2 list-disc list-inside">
-                          {order.items.map((item, index) => (
-                            <li key={index}>
-                              {item.quantity}x {item.product.name} @ Rupees {item.product.price.toFixed(2)} each
-                            </li>
-                          ))}
-                        </ul>
-                         <Separator className="my-4" />
-                         <div className='flex gap-2'>
-                           <Button size="sm" className='bg-green-600 hover:bg-green-700' onClick={() => handleMarkAsDone(order.id)}>
-                              <CheckCircle className="mr-2 h-4 w-4"/>
-                              Mark as Done
-                           </Button>
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button variant="destructive" size="sm">
-                                <Trash className="mr-2 h-4 w-4"/>
-                                Delete Order Record
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Are you sure you want to delete this order record?</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  This action cannot be undone. This will permanently delete the order record from view.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={() => handleRemoveOrder(order.id)}>
-                                  Delete
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                         </div>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <p>No active orders.</p>
-              </div>
-            )}
+             <Accordion type="single" collapsible className="w-full" defaultValue='active-orders'>
+                 <AccordionItem value="active-orders">
+                     <AccordionTrigger className='text-xl font-headline'>Active Orders ({activeOrders.length})</AccordionTrigger>
+                     <AccordionContent>
+                         {activeOrders.length > 0 ? (
+                            <div className="space-y-4">
+                                {activeOrders.map((order) => (
+                                <Card key={order.id} className="p-4">
+                                    <div className="flex justify-between items-center w-full pr-4">
+                                        <div>
+                                            <span className='font-semibold text-lg'>{order.customerName}</span>
+                                            <div className='flex items-center gap-2 text-sm text-muted-foreground'><Phone size={14}/><span>{order.phoneNumber}</span></div>
+                                            <div className='text-xs text-muted-foreground mt-1'>{order.timestamp}</div>
+                                        </div>
+                                        <Badge variant="secondary">Active</Badge>
+                                        <span className='font-bold text-primary text-xl'>Rupees {order.totalPrice.toFixed(2)}</span>
+                                    </div>
+                                    <Separator className="my-3" />
+                                    <div>
+                                        <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><ShoppingBag size={16}/>Ordered Items</h4>
+                                        <ul className="space-y-1 list-disc list-inside text-sm">
+                                        {order.items.map((item, index) => (
+                                            <li key={index}>
+                                            {item.quantity}x {item.product.name} @ Rupees {item.product.price.toFixed(2)} each
+                                            </li>
+                                        ))}
+                                        </ul>
+                                    </div>
+                                    <Separator className="my-3" />
+                                    <div className='flex gap-2'>
+                                    <Button size="sm" className='bg-green-600 hover:bg-green-700' onClick={() => handleMarkAsDone(order.id)}>
+                                        <CheckCircle className="mr-2 h-4 w-4"/>
+                                        Mark as Done
+                                    </Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                        <Button variant="destructive" size="sm">
+                                            <Trash className="mr-2 h-4 w-4"/>
+                                            Delete Record
+                                        </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>Are you sure you want to delete this order record?</AlertDialogTitle>
+                                            <AlertDialogDescription>
+                                            This action cannot be undone. This will permanently delete the order record.
+                                            </AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleRemoveOrder(order.id)}>
+                                            Delete
+                                            </AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </div>
+                                </Card>
+                                ))}
+                            </div>
+                            ) : (
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p>No active orders.</p>
+                            </div>
+                            )}
+                     </AccordionContent>
+                 </AccordionItem>
+                  <AccordionItem value="completed-orders">
+                     <AccordionTrigger className='text-xl font-headline'>Completed & Cancelled Orders ({completedOrders.length})</AccordionTrigger>
+                     <AccordionContent>
+                          {completedOrders.length > 0 ? (
+                            <div className="space-y-4">
+                                {completedOrders.map((order) => (
+                                <Card key={order.id} className="p-4 bg-muted/30">
+                                    <div className="flex justify-between items-center w-full pr-4">
+                                        <div>
+                                            <span className='font-semibold text-lg'>{order.customerName}</span>
+                                             <div className='flex items-center gap-2 text-sm text-muted-foreground'><Phone size={14}/><span>{order.phoneNumber}</span></div>
+                                            <div className='text-xs text-muted-foreground mt-1'>{order.timestamp}</div>
+                                        </div>
+                                        {order.status === 'done' ? (
+                                            <Badge className='bg-green-600'><CheckCircle className="mr-2 h-4 w-4"/>Completed</Badge>
+                                        ): (
+                                            <Badge variant="destructive"><Ban className="mr-2 h-4 w-4"/>Cancelled</Badge>
+                                        )}
+                                        <span className='font-bold text-muted-foreground text-xl'>Rupees {order.totalPrice.toFixed(2)}</span>
+                                    </div>
+                                      <Separator className="my-3" />
+                                    <div className='flex justify-end'>
+                                        <AlertDialog>
+                                            <AlertDialogTrigger asChild>
+                                            <Button variant="ghost" size="sm" className="text-muted-foreground">
+                                                <Trash className="mr-2 h-4 w-4"/>
+                                                Delete Record
+                                            </Button>
+                                            </AlertDialogTrigger>
+                                            <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure you want to delete this order record?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                This action cannot be undone. This will permanently delete the order record.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleRemoveOrder(order.id)}>
+                                                Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                            </AlertDialogContent>
+                                        </AlertDialog>
+                                    </div>
+                                </Card>
+                                ))}
+                            </div>
+                            ) : (
+                            <div className="text-center py-12 text-muted-foreground">
+                                <p>No completed or cancelled orders.</p>
+                            </div>
+                            )}
+                     </AccordionContent>
+                 </AccordionItem>
+             </Accordion>
           </CardContent>
         </Card>
       </div>
