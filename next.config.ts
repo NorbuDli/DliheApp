@@ -29,14 +29,6 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    // @ts-expect-error: allowedDevOrigins is still experimental in typings
-    allowedDevOrigins: [
-      "http://localhost:9000",
-      "http://localhost:9002",
-      "https://9000-firebase-dliheapp-1756269100480.cluster-nulpgqge5rgw6rwqiydysl6ocy.cloudworkstations.dev",
-    ],
-  },
 };
 
 export default nextConfig;
