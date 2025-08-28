@@ -12,7 +12,6 @@ import { Product } from '@/types';
 import { UploadCloud, Package, PlusCircle, Trash2, ShoppingBag, Phone, Trash, Ban, CheckCircle, LogOut } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useProducts } from '@/context/product-context';
-import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -23,7 +22,9 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { collection, onSnapshot, query, addDoc, deleteDoc, updateDoc, doc } from 'firebase/firestore';
 import { Switch } from '@/components/ui/switch';
+import { db } from '@/lib/firebase'; // Assuming your firebase config is exported as 'db'
 import { useOrders } from '@/context/order-context';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -36,8 +37,8 @@ import { Badge } from '@/components/ui/badge';
 
 export default function AdminPage() {
   const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
   const { toast } = useToast();
-  const { products, dispatch } = useProducts();
   const { orders, dispatch: orderDispatch } = useOrders();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -47,6 +48,17 @@ export default function AdminPage() {
       router.replace('/admin/login');
     } else {
       setIsLoading(false);
+      // Fetch products in real-time
+      const productsQuery = query(collection(db, 'products'));
+      const unsubscribeProducts = onSnapshot(productsQuery, (snapshot) => {
+        const productsData = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        })) as Product[];
+        setProducts(productsData);
+      });
+
+      return () => unsubscribeProducts(); // Cleanup listener on unmount
     }
   }, [router]);
 
@@ -76,7 +88,7 @@ export default function AdminPage() {
   const handleAddProduct = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price || !newProduct.imageUrl) {
-      toast({
+      toast({ // Add the toast notification back
         variant: 'destructive',
         title: 'Missing fields',
         description: 'Please fill out all product details.',
@@ -84,13 +96,18 @@ export default function AdminPage() {
       return;
     }
 
-    const createdProduct: Omit<Product, 'id' | 'inStock'> = {
+    // Add product to Firebase
+    addDoc(collection(db, 'products'), {
       name: newProduct.name,
       price: parseFloat(newProduct.price),
       imageUrl: newProduct.imageUrl,
+      inStock: true, // New products are in stock by default
       dataAiHint: newProduct.dataAiHint || newProduct.name.toLowerCase().split(' ').slice(0, 2).join(' '),
-    };
-
+    }).then(() => {
+      toast({ // Add the toast notification back
+        title: 'Product Added!',
+        description: `${newProduct.name} has been added to the store.`,
+      });
     dispatch({ type: 'ADD_PRODUCT', payload: createdProduct });
 
     toast({
@@ -104,19 +121,28 @@ export default function AdminPage() {
       imageUrl: '',
       imageFile: null,
       dataAiHint: ''
-    });
-  };
-
-  const handleRemoveProduct = (productId: number) => {
-    dispatch({ type: 'REMOVE_PRODUCT', payload: productId });
+    }); // Clear the form after adding
+  }).catch((error) => {
+    console.error('Error adding product: ', error);
     toast({
-      title: 'Product Removed',
-      description: 'The product has been removed from the store.',
+      variant: 'destructive',
+      title: 'Error',
+      description: 'Failed to add product. Please try again.',
     });
+  });
   };
 
-  const handleStockToggle = (productId: number) => {
-    dispatch({ type: 'TOGGLE_STOCK_STATUS', payload: productId });
+  const handleRemoveProduct = (productId: string) => {
+    deleteDoc(doc(db, 'products', productId)).then(() => {
+      toast({
+        title: 'Product Removed',
+        description: 'The product has been removed from the store.',
+      });
+    }).catch((error) => console.error('Error removing product: ', error));
+  };
+
+  const handleStockToggle = (product: Product) => {
+    updateDoc(doc(db, 'products', product.id), { inStock: !product.inStock }).catch((error) => console.error('Error toggling stock: ', error));
   };
 
   const handleRemoveOrder = (orderId: string) => {
@@ -262,7 +288,7 @@ export default function AdminPage() {
                                 <Switch
                                   id={`stock-switch-${product.id}`}
                                   checked={product.inStock}
-                                  onCheckedChange={() => handleStockToggle(product.id)}
+                                  onCheckedChange={() => handleStockToggle(product)}
                                 />
                                 <Label htmlFor={`stock-switch-${product.id}`}>{product.inStock ? 'In Stock' : 'Out of Stock'}</Label>
                               </div>

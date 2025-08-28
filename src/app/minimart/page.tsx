@@ -6,11 +6,16 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LogIn } from 'lucide-react';
 import ProductGrid from '@/components/minimart/product-grid';
+import { collection, onSnapshot, query } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
+import { Product } from '@/types';
 
 export default function MinimartPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<{ name: string; phone: string } | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const storedUser = sessionStorage.getItem('minimartUser');
@@ -26,6 +31,22 @@ export default function MinimartPage() {
     }
   }, [router, toast]);
 
+  useEffect(() => {
+    const q = query(collection(db, 'products'));
+    const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const productsData: Product[] = [];
+      querySnapshot.forEach((doc) => {
+        productsData.push({ id: doc.id, ...doc.data() } as Product);
+      });
+      setProducts(productsData);
+      setLoading(false);
+    }, (error) => {
+      console.error("Error fetching products: ", error);
+      setLoading(false);
+    });
+    return () => unsubscribe();
+  }, []);
+
   const handleLogout = () => {
     sessionStorage.removeItem('minimartUser');
     setCurrentUser(null);
@@ -36,8 +57,12 @@ export default function MinimartPage() {
     router.push('/');
   }
 
-  if (!currentUser) {
-    return null; // Or a loading component
+  if (loading || !currentUser) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        {/* Optional: Add a loading spinner or skeleton */}
+        Loading products...
+      </div>); // Or a loading component
   }
 
   return (
@@ -48,7 +73,7 @@ export default function MinimartPage() {
           </h1>
           <Button variant="outline" onClick={handleLogout}><LogIn className="mr-2"/>Change User</Button>
       </div>
-      <ProductGrid />
+      <ProductGrid products={products} />
     </div>
   );
 }

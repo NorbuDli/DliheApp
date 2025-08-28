@@ -46,7 +46,7 @@ export default function MainPage() {
           </p>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <section className="grid grid-cols-1 gap-8 max-w-xl mx-auto">
           <Card className="hover:shadow-lg transition-shadow duration-300">
             <CardHeader className="flex-row items-center gap-4">
               <div className="bg-primary/20 p-3 rounded-full">
@@ -73,28 +73,6 @@ export default function MainPage() {
                    </Link>
                  </Button>
               </div>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow duration-300">
-            <CardHeader className="flex-row items-center gap-4">
-              <div className="bg-accent/20 p-3 rounded-full">
-                <Calculator className="h-8 w-8 text-accent" />
-              </div>
-              <div>
-                <CardTitle className="font-headline text-2xl">Attendance Tracker</CardTitle>
-                <CardDescription>Never miss a class goal</CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="mb-6">
-                Upload your timetable, track your attendance, and project your final percentage with our AI-powered calculator.
-              </p>
-              <Button asChild className="w-full bg-accent text-accent-foreground hover:bg-accent/90">
-                <Link href="/attendance">
-                  Calculate Attendance <ArrowRight className="ml-2" />
-                </Link>
-              </Button>
             </CardContent>
           </Card>
         </section>

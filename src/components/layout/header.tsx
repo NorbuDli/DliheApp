@@ -15,7 +15,6 @@ export default function Header() {
   const navLinks = [
     { href: '/main', label: 'Home' },
     { href: '/minimart', label: 'Minimart' },
-    { href: '/attendance', label: 'Attendance' },
   ];
 
   return (
