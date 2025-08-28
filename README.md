@@ -1,5 +1,6 @@
 # Firebase Studio
 
-This is a NextJS starter in Firebase Studio.
+this app is dedicated to my college dlihe
 
-To get started, take a look at src/app/page.tsx.
+its for the students to access the minimart from home.
+
